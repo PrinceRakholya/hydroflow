@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny Catch-All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper to validate Standard IDs
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- Entity Validation Helpers ---
+
+    function isValidSensorReading(data) {
+      return data.keys().hasAll(['timestamp', 'temp', 'humidity', 'soil_moisture'])
+          && data.keys().size() == 4
+          && data.timestamp is string
+          && data.temp is number
+          && data.humidity is number
+          && data.soil_moisture is number;
+    }
+
+    function isValidSystemStatus(data) {
+      return data.keys().hasAll(['is_watering', 'is_auto_mode', 'lastUpdated'])
+          && data.keys().size() == 3
+          && data.is_watering is bool
+          && data.is_auto_mode is bool
+          && data.lastUpdated is string;
+    }
+
+    // --- Security Rules ---
+
+    // Sensor Telemetry: Anyone signed in can read (for the dashboard), 
+    // but only the system (or auth'd users for now) can write.
+    match /sensor_data/{readingId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidSensorReading(request.resource.data);
+      allow update, delete: if false; // Telemetry is immutable
+    }
+
+    // System Control Singleton
+    match /system_config/status {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidSystemStatus(request.resource.data);
+    }
+  }
+}

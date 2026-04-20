@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-[#050A06] text-[#E0E0E0] antialiased overflow-x-hidden;
+    background-image: 
+      radial-gradient(circle at 50% 110%, rgba(0, 230, 118, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 0% 0%, rgba(0, 230, 118, 0.05) 0%, transparent 30%);
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-[#050A06];
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-[#00E676]/20 rounded-full hover:bg-[#00E676]/40 transition-colors;
+  }
+}
+
+@layer components {
+  .farm-card {
+    @apply bg-[#0D150F] border border-[#00E676]/10 rounded-[2rem] p-8 shadow-[0_4px_20px_rgb(0,0,0,0.5)] transition-all duration-500 hover:border-[#00E676]/30 hover:shadow-[0_0_40px_rgba(0,230,118,0.1)] hover:-translate-y-1 relative overflow-hidden;
+  }
+
+  .btn-primary {
+    @apply bg-[#00E676] text-[#050A06] px-8 py-4 rounded-2xl font-black shadow-[0_0_20px_rgba(0,230,118,0.3)] hover:bg-[#69f0ae] hover:shadow-[0_0_30px_rgba(0,230,118,0.5)] transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-[#00E676] border-2 border-[#00E676]/20 px-8 py-4 rounded-2xl font-bold hover:bg-[#00E676]/5 hover:border-[#00E676]/50 transition-all active:scale-95 flex items-center justify-center gap-2 text-xs uppercase tracking-widest;
+  }
+
+  .nav-blur {
+    @apply bg-[#0D150F]/80 backdrop-blur-2xl border border-[#00E676]/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)];
+  }
+
+  .glass-modal {
+    @apply bg-[#0D150F]/95 backdrop-blur-2xl border border-[#00E676]/20 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.9)];
+  }
+
+  .text-neon {
+    @apply text-[#00E676] drop-shadow-[0_0_8px_rgba(0,230,118,0.6)];
+  }
+}
+
+@keyframes grid-move {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(40px); }
+}
+
+.bg-grid {
+  background-image: linear-gradient(to bottom, rgba(0, 230, 118, 0.05) 1px, transparent 1px),
+                    linear-gradient(to right, rgba(0, 230, 118, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: grid-move 4s linear infinite;
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.scanline {
+  width: 100%;
+  height: 100px;
+  z-index: 10;
+  background: linear-gradient(to bottom, transparent, rgba(0, 230, 118, 0.03), transparent);
+  opacity: 0.5;
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  animation: scanline 8s linear infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(1.2); opacity: 0; }
+}
+
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border: 1px solid rgba(0, 230, 118, 0.5);
+  border-radius: inherit;
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

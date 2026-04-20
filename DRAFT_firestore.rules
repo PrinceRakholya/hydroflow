@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Validation Helpers ---
+    function isValidSensorReading(data) {
+      return data.keys().hasAll(['timestamp', 'temp', 'humidity', 'soil_moisture']) 
+        && data.keys().size() == 4
+        && data.timestamp is string
+        && data.temp is number
+        && data.humidity is number
+        && data.soil_moisture is number
+        && data.soil_moisture >= 0 && data.soil_moisture <= 100;
+    }
+
+    function isValidSystemStatus(data) {
+      return data.keys().hasAll(['is_watering', 'is_auto_mode'])
+        && data.is_watering is bool
+        && data.is_auto_mode is bool;
+    }
+
+    // --- Rules ---
+
+    match /sensor_data/{readingId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(readingId) && isValidSensorReading(incoming());
+      // No updates or deletes for historical telemetry
+      allow update, delete: if false;
+    }
+
+    match /system_config/status {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidSystemStatus(incoming());
+    }
+  }
+}

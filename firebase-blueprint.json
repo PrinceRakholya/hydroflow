@@ -1,0 +1,37 @@
+{
+  "entities": {
+    "SensorReading": {
+      "title": "Sensor Reading",
+      "description": "Historical telemetry from sensors",
+      "type": "object",
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time", "description": "ISO timestamp of the reading" },
+        "temp": { "type": "number", "description": "Temperature in Celsius" },
+        "humidity": { "type": "number", "description": "Relative humidity percentage" },
+        "soil_moisture": { "type": "number", "description": "Soil moisture level percentage" }
+      },
+      "required": ["timestamp", "temp", "humidity", "soil_moisture"]
+    },
+    "SystemStatus": {
+      "title": "System Status",
+      "description": "Current operational state of the irrigation system",
+      "type": "object",
+      "properties": {
+        "is_watering": { "type": "boolean", "description": "Whether the water pump is currently active" },
+        "is_auto_mode": { "type": "boolean", "description": "Whether automatic control is enabled" },
+        "lastUpdated": { "type": "string", "format": "date-time", "description": "Last time status was modified" }
+      },
+      "required": ["is_watering", "is_auto_mode"]
+    }
+  },
+  "firestore": {
+    "/sensor_data/{readingId}": {
+      "schema": "SensorReading",
+      "description": "Collection of timestamped sensor telemetry logs"
+    },
+    "/system_config/status": {
+      "schema": "SystemStatus",
+      "description": "Singleton document containing the system's operational flags"
+    }
+  }
+}
